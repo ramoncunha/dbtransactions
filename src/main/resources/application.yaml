@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: dbtransaction
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/myshop
+    username: dbaccess
+    password: pgsql
