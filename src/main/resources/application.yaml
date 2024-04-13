@@ -1,6 +1,9 @@
 spring:
   application:
     name: dbtransaction
+  mvc:
+    problemdetails:
+      enabled: true
 
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect

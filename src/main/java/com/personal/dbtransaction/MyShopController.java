@@ -22,6 +22,7 @@ import java.util.Random;
 @RequestMapping("/api/myshop")
 @RequiredArgsConstructor
 public class MyShopController {
+    private static final Random RANDOM = new Random();
 
     private final StockRepository stockRepository;
     private final OrderRepository orderRepository;
@@ -37,14 +38,7 @@ public class MyShopController {
                 .id(request.getProductId())
                 .build();
 
-        Optional<StockEntity> stockByProductId = stockRepository.findStockByProductId(product.getId());
-
-        int stock = stockByProductId.orElseThrow().getStock();
-        int possibleStock = stock - quantity;
-
-        if (stock < 0 || possibleStock < 0) {
-            throw new RuntimeException("Out of stock");
-        }
+        validateStock(product.getId(), quantity);
 
         var order = OrderEntity.builder()
                 .customer(customer)
@@ -60,7 +54,17 @@ public class MyShopController {
     }
 
     private int getRandomNumber() {
-        var randomQuantity = new Random();
-        return randomQuantity.nextInt(10) + 1;
+        return RANDOM.nextInt(10) + 1;
+    }
+
+    private void validateStock(Long productId, int quantity) {
+        Optional<StockEntity> stockByProductId = stockRepository.findStockByProductId(productId);
+
+        int stock = stockByProductId.orElseThrow().getStock();
+        int possibleStock = stock - quantity;
+
+        if (stock < 0 || possibleStock < 0) {
+            throw new OutOfStockException("Out of stock");
+        }
     }
 }
