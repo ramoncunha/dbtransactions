@@ -64,7 +64,7 @@ INSERT INTO products (name, description, price) VALUES
 
 -- Initialize the stocks table with 100 units of each product
 INSERT INTO stocks (product_id, stock)
-SELECT id, 100 FROM products;
+SELECT id, 1000 FROM products;
 
 ALTER TABLE PUBLIC.customers OWNER TO dbaccess;
 ALTER TABLE PUBLIC.orders OWNER TO dbaccess;

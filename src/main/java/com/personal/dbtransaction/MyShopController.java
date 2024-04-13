@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.OffsetDateTime;
 import java.util.Optional;
+import java.util.Random;
 
 @RestController
 @RequestMapping("/api/myshop")
@@ -27,33 +28,39 @@ public class MyShopController {
 
     @PostMapping("/products/buy")
     public ResponseEntity<OrderEntity> buyProduct(@RequestBody BuyProductRequest request) {
+        int quantity = getRandomNumber();
+
         var customer = CustomerEntity.builder()
                 .id(request.getCustomerId())
                 .build();
-
         var product = ProductEntity.builder()
                 .id(request.getProductId())
-                .build();
-
-        var order = OrderEntity.builder()
-                .customer(customer)
-                .product(product)
-                .quantity(request.getQuantity())
-                .date(OffsetDateTime.now())
                 .build();
 
         Optional<StockEntity> stockByProductId = stockRepository.findStockByProductId(product.getId());
 
         int stock = stockByProductId.orElseThrow().getStock();
-        int possibleStock = stock - request.getQuantity();
+        int possibleStock = stock - quantity;
 
         if (stock < 0 || possibleStock < 0) {
             throw new RuntimeException("Out of stock");
         }
 
-        stockRepository.decreaseStock(product.getId(), request.getQuantity());
+        var order = OrderEntity.builder()
+                .customer(customer)
+                .product(product)
+                .quantity(quantity)
+                .date(OffsetDateTime.now())
+                .build();
+
+        stockRepository.decreaseStock(product.getId(), quantity);
         OrderEntity savedOrder = orderRepository.save(order);
 
         return new ResponseEntity<>(savedOrder, HttpStatus.OK);
+    }
+
+    private int getRandomNumber() {
+        var randomQuantity = new Random();
+        return randomQuantity.nextInt(10) + 1;
     }
 }
