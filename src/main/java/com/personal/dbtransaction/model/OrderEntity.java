@@ -1,16 +1,18 @@
 package com.personal.dbtransaction.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.time.OffsetDateTime;
-import java.util.List;
 
 @Data
 @Entity
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "orders")
 public class OrderEntity {
 
@@ -22,12 +24,11 @@ public class OrderEntity {
     @JoinColumn(name = "customer_id")
     private CustomerEntity customer;
 
-    @Column(name = "order_date")
-    private OffsetDateTime orderDate;
+    @ManyToOne
+    @JoinColumn(name = "product_id")
+    private ProductEntity product;
 
-    @Column(name = "total_amount")
-    private BigDecimal totalAmount;
+    private int quantity;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
-    private List<OrderItemEntity> orderItems;
+    private OffsetDateTime date;
 }

@@ -1,15 +1,18 @@
 package com.personal.dbtransaction.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 @Data
 @Entity
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "products")
 public class ProductEntity {
 
@@ -22,11 +25,4 @@ public class ProductEntity {
     private String description;
 
     private BigDecimal price;
-
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-    private List<OrderItemEntity> orderItems;
-
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-    private List<ReviewEntity> reviews;
-
 }

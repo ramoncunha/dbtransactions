@@ -1,16 +1,20 @@
 package com.personal.dbtransaction.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.OffsetDateTime;
 
 @Data
 @Entity
 @Builder
-@Table(name = "reviews")
-public class ReviewEntity {
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "stocks")
+public class StockEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,13 +24,8 @@ public class ReviewEntity {
     @JoinColumn(name = "product_id")
     private ProductEntity product;
 
-    @ManyToOne
-    @JoinColumn(name = "customer_id")
-    private CustomerEntity customer;
+    private int stock;
 
-    private int rating;
-
-    private String comment;
-
-    private OffsetDateTime date;
+    @Column(name = "updated_at")
+    private OffsetDateTime updatedAt;
 }
