@@ -1,11 +1,13 @@
-package com.personal.dbtransaction;
+package com.personal.dbtransaction.presentation;
 
-import com.personal.dbtransaction.model.CustomerEntity;
-import com.personal.dbtransaction.model.OrderEntity;
-import com.personal.dbtransaction.model.ProductEntity;
-import com.personal.dbtransaction.model.StockEntity;
-import com.personal.dbtransaction.repository.OrderRepository;
-import com.personal.dbtransaction.repository.StockRepository;
+import com.personal.dbtransaction.domain.BuyProductRequest;
+import com.personal.dbtransaction.domain.OutOfStockException;
+import com.personal.dbtransaction.infrastructure.model.CustomerEntity;
+import com.personal.dbtransaction.infrastructure.model.OrderEntity;
+import com.personal.dbtransaction.infrastructure.model.ProductEntity;
+import com.personal.dbtransaction.infrastructure.model.StockEntity;
+import com.personal.dbtransaction.infrastructure.repository.OrderRepository;
+import com.personal.dbtransaction.infrastructure.repository.StockRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

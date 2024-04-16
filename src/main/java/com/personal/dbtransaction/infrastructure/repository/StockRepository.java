@@ -1,6 +1,6 @@
-package com.personal.dbtransaction.repository;
+package com.personal.dbtransaction.infrastructure.repository;
 
-import com.personal.dbtransaction.model.StockEntity;
+import com.personal.dbtransaction.infrastructure.model.StockEntity;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

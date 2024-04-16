@@ -1,4 +1,4 @@
-package com.personal.dbtransaction;
+package com.personal.dbtransaction.domain;
 
 public class BusinessException extends RuntimeException {
 

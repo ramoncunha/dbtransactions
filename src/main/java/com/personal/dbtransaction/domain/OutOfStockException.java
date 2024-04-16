@@ -1,4 +1,6 @@
-package com.personal.dbtransaction;
+package com.personal.dbtransaction.domain;
+
+import com.personal.dbtransaction.domain.BusinessException;
 
 public class OutOfStockException extends BusinessException {
 

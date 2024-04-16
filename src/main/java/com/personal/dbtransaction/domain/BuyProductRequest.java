@@ -1,4 +1,4 @@
-package com.personal.dbtransaction;
+package com.personal.dbtransaction.domain;
 
 import lombok.Data;
 
