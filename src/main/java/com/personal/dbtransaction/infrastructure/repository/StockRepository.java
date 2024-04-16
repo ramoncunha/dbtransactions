@@ -1,7 +1,9 @@
 package com.personal.dbtransaction.infrastructure.repository;
 
 import com.personal.dbtransaction.infrastructure.model.StockEntity;
+import jakarta.persistence.LockModeType;
 import jakarta.transaction.Transactional;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -11,6 +13,8 @@ import java.util.Optional;
 
 public interface StockRepository extends CrudRepository<StockEntity, Long> {
 
+    @Transactional
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<StockEntity> findStockByProductId(Long productId);
 
     @Transactional
