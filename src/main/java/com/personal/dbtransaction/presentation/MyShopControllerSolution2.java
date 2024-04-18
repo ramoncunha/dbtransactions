@@ -8,7 +8,6 @@ import com.personal.dbtransaction.infrastructure.model.ProductEntity;
 import com.personal.dbtransaction.infrastructure.model.StockEntity;
 import com.personal.dbtransaction.infrastructure.repository.OrderRepository;
 import com.personal.dbtransaction.infrastructure.repository.StockRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,10 +20,10 @@ import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.Random;
 
-//@RestController
-//@RequestMapping("/api/myshop")
+@RestController
+@RequestMapping("/api/myshop")
 @RequiredArgsConstructor
-public class MyShopControllerSolution1 {
+public class MyShopControllerSolution2 {
     private static final Random RANDOM = new Random();
 
     private final StockRepository stockRepository;
@@ -41,22 +40,13 @@ public class MyShopControllerSolution1 {
                 .id(request.getProductId())
                 .build();
 
-        OrderEntity savedOrder = validateStockWithLock(request.getProductId(), quantity, customer, product);
+        validateStock(product.getId(), quantity);
 
-        return new ResponseEntity<>(savedOrder, HttpStatus.OK);
-    }
+        int changedRows = stockRepository.decreaseStockWhereQuantityGreaterThanZero(product.getId(), quantity);
 
-    @Transactional(Transactional.TxType.MANDATORY)
-    public OrderEntity validateStockWithLock(Long productId, int quantity, CustomerEntity customer, ProductEntity product) {
-        Optional<StockEntity> stockByProductId = stockRepository.findStockByProductId(productId);
-        int stock = stockByProductId.orElseThrow().getStock();
-        int possibleStock = stock - quantity;
-
-        if (stock < 0 || possibleStock < 0) {
+        if (changedRows == 0) {
             throw new OutOfStockException("Out of stock");
         }
-
-        stockRepository.decreaseStock(productId, quantity);
 
         var order = OrderEntity.builder()
                 .customer(customer)
@@ -65,7 +55,20 @@ public class MyShopControllerSolution1 {
                 .date(OffsetDateTime.now())
                 .build();
 
-        return orderRepository.save(order);
+        OrderEntity savedOrder = orderRepository.save(order);
+
+        return new ResponseEntity<>(savedOrder, HttpStatus.OK);
+    }
+
+    private void validateStock(Long productId, int quantity) {
+        Optional<StockEntity> stockByProductId = stockRepository.findStockByProductId(productId);
+
+        int stock = stockByProductId.orElseThrow().getStock();
+        int possibleStock = stock - quantity;
+
+        if (stock < 0 || possibleStock < 0) {
+            throw new OutOfStockException("Out of stock");
+        }
     }
 
     private int getRandomNumber() {
