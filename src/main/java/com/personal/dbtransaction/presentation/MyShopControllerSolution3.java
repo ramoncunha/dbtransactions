@@ -8,6 +8,9 @@ import com.personal.dbtransaction.infrastructure.model.ProductEntity;
 import com.personal.dbtransaction.infrastructure.model.StockEntity;
 import com.personal.dbtransaction.infrastructure.repository.OrderRepository;
 import com.personal.dbtransaction.infrastructure.repository.StockRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,15 +22,17 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.Random;
+import java.util.concurrent.locks.ReadWriteLock;
 
-//@RestController
-//@RequestMapping("/api/myshop")
+@RestController
+@RequestMapping("/api/myshop")
 @RequiredArgsConstructor
-public class MyShopControllerSolution2 {
+public class MyShopControllerSolution3 {
     private static final Random RANDOM = new Random();
 
     private final StockRepository stockRepository;
     private final OrderRepository orderRepository;
+    private final EntityManager entityManager;
 
     @PostMapping("/products/buy")
     public ResponseEntity<OrderEntity> buyProduct(@RequestBody BuyProductRequest request) {
@@ -42,12 +47,6 @@ public class MyShopControllerSolution2 {
 
         validateStock(product.getId(), quantity);
 
-        int changedRows = stockRepository.decreaseStockWhereQuantityGreaterThanZero(product.getId(), quantity);
-
-        if (changedRows == 0) {
-            throw new OutOfStockException("Out of stock");
-        }
-
         var order = OrderEntity.builder()
                 .customer(customer)
                 .product(product)
@@ -55,9 +54,14 @@ public class MyShopControllerSolution2 {
                 .date(OffsetDateTime.now())
                 .build();
 
+        acquireLock(product.getId(), quantity);
         OrderEntity savedOrder = orderRepository.save(order);
 
         return new ResponseEntity<>(savedOrder, HttpStatus.OK);
+    }
+
+    private int getRandomNumber() {
+        return RANDOM.nextInt(10) + 1;
     }
 
     private void validateStock(Long productId, int quantity) {
@@ -71,7 +75,11 @@ public class MyShopControllerSolution2 {
         }
     }
 
-    private int getRandomNumber() {
-        return RANDOM.nextInt(10) + 1;
+    @Transactional(Transactional.TxType.REQUIRED)
+    public void acquireLock(Long productId, Integer quantity) {
+        String sql = "select pg_advisory_xact_lock(%s)";
+        entityManager.createNativeQuery(String.format(sql, productId)).getSingleResult();
+
+        stockRepository.decreaseStock(productId, quantity);
     }
 }
