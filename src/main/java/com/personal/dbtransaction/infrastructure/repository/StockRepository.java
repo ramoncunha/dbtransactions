@@ -13,10 +13,12 @@ import java.util.Optional;
 
 public interface StockRepository extends CrudRepository<StockEntity, Long> {
 
-//    FOR UPDATE - Solution 1
+    Optional<StockEntity> findStockByProductId(Long productId);
+
 //    @Transactional
 //    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    Optional<StockEntity> findStockByProductId(Long productId);
+    @Query(nativeQuery = true, value = "SELECT * FROM stocks WHERE id = :productId FOR UPDATE")
+    Optional<StockEntity> findStockByProductIdWithLock(Long productId);
 
     @Transactional
     @Modifying

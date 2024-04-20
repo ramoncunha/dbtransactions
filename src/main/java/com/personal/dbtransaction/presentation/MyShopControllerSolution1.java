@@ -17,12 +17,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.Duration;
 import java.time.OffsetDateTime;
+import java.time.temporal.TemporalUnit;
 import java.util.Optional;
 import java.util.Random;
 
-//@RestController
-//@RequestMapping("/api/myshop")
+@RestController
+@RequestMapping("/api/myshop")
 @RequiredArgsConstructor
 public class MyShopControllerSolution1 {
     private static final Random RANDOM = new Random();
@@ -32,7 +34,7 @@ public class MyShopControllerSolution1 {
 
     @PostMapping("/products/buy")
     public ResponseEntity<OrderEntity> buyProduct(@RequestBody BuyProductRequest request) {
-        int quantity = getRandomNumber();
+        int quantity = request.getQuantity();
 
         var customer = CustomerEntity.builder()
                 .id(request.getCustomerId())
@@ -41,19 +43,25 @@ public class MyShopControllerSolution1 {
                 .id(request.getProductId())
                 .build();
 
-        OrderEntity savedOrder = validateStockWithLock(request.getProductId(), quantity, customer, product);
+        OrderEntity savedOrder = validateStockWithLock(request.getProductId(), quantity, customer, product, request.getDelay());
 
         return new ResponseEntity<>(savedOrder, HttpStatus.OK);
     }
 
     @Transactional(Transactional.TxType.MANDATORY)
-    public OrderEntity validateStockWithLock(Long productId, int quantity, CustomerEntity customer, ProductEntity product) {
-        Optional<StockEntity> stockByProductId = stockRepository.findStockByProductId(productId);
+    public OrderEntity validateStockWithLock(Long productId, int quantity, CustomerEntity customer, ProductEntity product, long delay) {
+        Optional<StockEntity> stockByProductId = stockRepository.findStockByProductIdWithLock(productId);
         int stock = stockByProductId.orElseThrow().getStock();
         int possibleStock = stock - quantity;
 
         if (stock < 0 || possibleStock < 0) {
             throw new OutOfStockException("Out of stock");
+        }
+
+        try {
+            Thread.sleep(Duration.ofSeconds(delay).toMillis());
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
 
         stockRepository.decreaseStock(productId, quantity);

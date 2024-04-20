@@ -24,8 +24,8 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.locks.ReadWriteLock;
 
-@RestController
-@RequestMapping("/api/myshop")
+//@RestController
+//@RequestMapping("/api/myshop")
 @RequiredArgsConstructor
 public class MyShopControllerSolution3 {
     private static final Random RANDOM = new Random();
@@ -77,8 +77,9 @@ public class MyShopControllerSolution3 {
 
     @Transactional(Transactional.TxType.REQUIRED)
     public void acquireLock(Long productId, Integer quantity) {
-        String sql = "select pg_advisory_xact_lock(%s)";
-        entityManager.createNativeQuery(String.format(sql, productId)).getSingleResult();
+        Query nativeQuery = entityManager.createNativeQuery("select 1 from pg_advisory_xact_lock(:id)");
+        nativeQuery.setParameter("id", "product-" + productId);
+        nativeQuery.getSingleResult();
 
         stockRepository.decreaseStock(productId, quantity);
     }
