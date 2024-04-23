@@ -9,23 +9,23 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class BuyProductService {
+public class BuyProductServiceSolution0 {
 
     private final CreateOrderService createOrderService;
     private final ProductStockService productStockService;
 
-    public OrderEntity buy(BuyProductRequest request, int quantity) {
+    public OrderEntity buy(BuyProductRequest request) {
         long productId = request.getProductId();
-//        int quantity = request.getQuantity();
+        int quantity = request.getQuantity();
 
         var customerMock = CustomerEntity.builder()
                 .id(request.getCustomerId())
                 .build();
         var productMock = ProductEntity.builder()
-                .id(productId)
+                .id(request.getProductId())
                 .build();
 
-        productStockService.validateAndDecrease(productId, quantity, 0);
+        productStockService.validateAndDecreaseSolution0(productId, quantity);
 
         return createOrderService.create(customerMock, productMock, quantity);
     }

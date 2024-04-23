@@ -7,7 +7,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
 import java.util.Optional;
 
 @Service
@@ -16,8 +15,21 @@ public class ProductStockService {
 
     private final StockRepository stockRepository;
 
+    public void validateAndDecreaseSolution0(long productId, int quantity) {
+        Optional<StockEntity> stockByProductId = stockRepository.findStockByProductId(productId);
+
+        int stock = stockByProductId.orElseThrow().getStock();
+        int possibleStock = stock - quantity;
+
+        if (stock < 0 || possibleStock < 0) {
+            throw new OutOfStockException("Out of stock");
+        }
+
+        stockRepository.decreaseStock(productId, quantity);
+    }
+
     @Transactional
-    public void validateAndDecrease(long productId, int quantity, long delay) {
+    public void validateAndDecreaseSolution1(long productId, int quantity, long delay) {
         Optional<StockEntity> stockByProductId = stockRepository.findStockByProductIdWithLock(productId);
 
         int stock = stockByProductId.orElseThrow().getStock();
