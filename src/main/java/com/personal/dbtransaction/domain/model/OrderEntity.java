@@ -1,4 +1,4 @@
-package com.personal.dbtransaction.infrastructure.model;
+package com.personal.dbtransaction.domain.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

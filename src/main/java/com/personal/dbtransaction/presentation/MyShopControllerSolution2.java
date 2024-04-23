@@ -2,10 +2,10 @@ package com.personal.dbtransaction.presentation;
 
 import com.personal.dbtransaction.domain.BuyProductRequest;
 import com.personal.dbtransaction.domain.OutOfStockException;
-import com.personal.dbtransaction.infrastructure.model.CustomerEntity;
-import com.personal.dbtransaction.infrastructure.model.OrderEntity;
-import com.personal.dbtransaction.infrastructure.model.ProductEntity;
-import com.personal.dbtransaction.infrastructure.model.StockEntity;
+import com.personal.dbtransaction.domain.model.CustomerEntity;
+import com.personal.dbtransaction.domain.model.OrderEntity;
+import com.personal.dbtransaction.domain.model.ProductEntity;
+import com.personal.dbtransaction.domain.model.StockEntity;
 import com.personal.dbtransaction.infrastructure.repository.OrderRepository;
 import com.personal.dbtransaction.infrastructure.repository.StockRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,8 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.time.OffsetDateTime;
 import java.util.Optional;

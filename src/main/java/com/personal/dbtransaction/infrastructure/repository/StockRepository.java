@@ -1,23 +1,19 @@
 package com.personal.dbtransaction.infrastructure.repository;
 
-import com.personal.dbtransaction.infrastructure.model.StockEntity;
-import jakarta.persistence.LockModeType;
-import jakarta.transaction.Transactional;
-import org.springframework.data.jpa.repository.Lock;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
+import com.personal.dbtransaction.domain.model.StockEntity;
+import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
-public interface StockRepository extends CrudRepository<StockEntity, Long> {
+@Repository
+public interface StockRepository extends JpaRepository<StockEntity, Long> {
 
     Optional<StockEntity> findStockByProductId(Long productId);
 
-//    @Transactional
-//    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query(nativeQuery = true, value = "SELECT * FROM stocks WHERE id = :productId FOR UPDATE")
+    @Query(value = "SELECT * FROM stocks s WHERE s.product_id = ?1 FOR UPDATE", nativeQuery = true)
     Optional<StockEntity> findStockByProductIdWithLock(Long productId);
 
     @Transactional

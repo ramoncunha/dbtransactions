@@ -1,14 +1,8 @@
 package com.personal.dbtransaction.presentation;
 
+import com.personal.dbtransaction.application.BuyProductService;
 import com.personal.dbtransaction.domain.BuyProductRequest;
-import com.personal.dbtransaction.domain.OutOfStockException;
-import com.personal.dbtransaction.infrastructure.model.CustomerEntity;
-import com.personal.dbtransaction.infrastructure.model.OrderEntity;
-import com.personal.dbtransaction.infrastructure.model.ProductEntity;
-import com.personal.dbtransaction.infrastructure.model.StockEntity;
-import com.personal.dbtransaction.infrastructure.repository.OrderRepository;
-import com.personal.dbtransaction.infrastructure.repository.StockRepository;
-import jakarta.transaction.Transactional;
+import com.personal.dbtransaction.domain.model.OrderEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,10 +11,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.Duration;
-import java.time.OffsetDateTime;
-import java.time.temporal.TemporalUnit;
-import java.util.Optional;
 import java.util.Random;
 
 @RestController
@@ -29,51 +19,12 @@ import java.util.Random;
 public class MyShopControllerSolution1 {
     private static final Random RANDOM = new Random();
 
-    private final StockRepository stockRepository;
-    private final OrderRepository orderRepository;
+    private final BuyProductService buyProductService;
 
     @PostMapping("/products/buy")
     public ResponseEntity<OrderEntity> buyProduct(@RequestBody BuyProductRequest request) {
-        int quantity = request.getQuantity();
-
-        var customer = CustomerEntity.builder()
-                .id(request.getCustomerId())
-                .build();
-        var product = ProductEntity.builder()
-                .id(request.getProductId())
-                .build();
-
-        OrderEntity savedOrder = validateStockWithLock(request.getProductId(), quantity, customer, product, request.getDelay());
-
-        return new ResponseEntity<>(savedOrder, HttpStatus.OK);
-    }
-
-    @Transactional(Transactional.TxType.MANDATORY)
-    public OrderEntity validateStockWithLock(Long productId, int quantity, CustomerEntity customer, ProductEntity product, long delay) {
-        Optional<StockEntity> stockByProductId = stockRepository.findStockByProductIdWithLock(productId);
-        int stock = stockByProductId.orElseThrow().getStock();
-        int possibleStock = stock - quantity;
-
-        if (stock < 0 || possibleStock < 0) {
-            throw new OutOfStockException("Out of stock");
-        }
-
-        try {
-            Thread.sleep(Duration.ofSeconds(delay).toMillis());
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-
-        stockRepository.decreaseStock(productId, quantity);
-
-        var order = OrderEntity.builder()
-                .customer(customer)
-                .product(product)
-                .quantity(quantity)
-                .date(OffsetDateTime.now())
-                .build();
-
-        return orderRepository.save(order);
+        OrderEntity order = buyProductService.buy(request, getRandomNumber());
+        return new ResponseEntity<>(order, HttpStatus.OK);
     }
 
     private int getRandomNumber() {
