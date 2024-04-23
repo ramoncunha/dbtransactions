@@ -3,7 +3,8 @@ package com.personal.dbtransaction.application;
 import com.personal.dbtransaction.domain.OutOfStockException;
 import com.personal.dbtransaction.domain.model.StockEntity;
 import com.personal.dbtransaction.infrastructure.repository.StockRepository;
-import jakarta.transaction.Transactional;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +15,7 @@ import java.util.Optional;
 public class ProductStockService {
 
     private final StockRepository stockRepository;
+    private final EntityManager entityManager;
 
     public void validateAndDecreaseSolution0(long productId, int quantity) {
         Optional<StockEntity> stockByProductId = stockRepository.findStockByProductId(productId);
@@ -28,7 +30,6 @@ public class ProductStockService {
         stockRepository.decreaseStock(productId, quantity);
     }
 
-    @Transactional
     public void validateAndDecreaseSolution1(long productId, int quantity, long delay) {
         Optional<StockEntity> stockByProductId = stockRepository.findStockByProductIdWithLock(productId);
 
@@ -44,6 +45,25 @@ public class ProductStockService {
 //        } catch (InterruptedException e) {
 //            throw new RuntimeException(e);
 //        }
+
+        stockRepository.decreaseStock(productId, quantity);
+    }
+
+    public void validateSolution2(long productId, int quantity) {
+        Optional<StockEntity> stockByProductId = stockRepository.findStockByProductId(productId);
+
+        int stock = stockByProductId.orElseThrow().getStock();
+        int possibleStock = stock - quantity;
+
+        if (stock < 0 || possibleStock < 0) {
+            throw new OutOfStockException("Out of stock");
+        }
+    }
+
+    public void acquireLockAndDecrease(long productId, int quantity) {
+        Query nativeQuery = entityManager.createNativeQuery("select pg_advisory_xact_lock(:lockId)");
+        nativeQuery.setParameter("lockId", productId);
+        nativeQuery.getSingleResult();
 
         stockRepository.decreaseStock(productId, quantity);
     }
