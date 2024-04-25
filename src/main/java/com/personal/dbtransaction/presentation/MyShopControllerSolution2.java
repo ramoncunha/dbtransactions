@@ -1,6 +1,6 @@
 package com.personal.dbtransaction.presentation;
 
-import com.personal.dbtransaction.application.BuyProductServiceSolution3;
+import com.personal.dbtransaction.application.BuyProductServiceSolution2;
 import com.personal.dbtransaction.domain.BuyProductRequest;
 import com.personal.dbtransaction.domain.model.OrderEntity;
 import lombok.RequiredArgsConstructor;
@@ -14,10 +14,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequiredArgsConstructor
 public class MyShopControllerSolution2 {
 
-    private BuyProductServiceSolution3 buyProductServiceSolution3;
+    private final BuyProductServiceSolution2 buyProductServiceSolution2;
 
     @PostMapping("/products/buy")
     public ResponseEntity<OrderEntity> buyProduct(@RequestBody BuyProductRequest request) {
-        return new ResponseEntity<>(buyProductServiceSolution3.buy(request), HttpStatus.OK);
+        OrderEntity order = buyProductServiceSolution2.buy(request);
+        return new ResponseEntity<>(order, HttpStatus.OK);
     }
 }
