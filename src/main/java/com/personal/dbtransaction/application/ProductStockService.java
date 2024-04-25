@@ -49,7 +49,7 @@ public class ProductStockService {
         stockRepository.decreaseStock(productId, quantity);
     }
 
-    public void validateSolution2(long productId, int quantity) {
+    public void validateSolution2And3(long productId, int quantity) {
         Optional<StockEntity> stockByProductId = stockRepository.findStockByProductId(productId);
 
         int stock = stockByProductId.orElseThrow().getStock();
@@ -66,5 +66,12 @@ public class ProductStockService {
         nativeQuery.getSingleResult();
 
         stockRepository.decreaseStock(productId, quantity);
+    }
+
+    public void decreaseSolution3(long productId, int quantity) {
+        int changedRows = stockRepository.decreaseStockWhereQuantityGreaterThanZero(productId, quantity);
+        if (changedRows == 0) {
+            throw new OutOfStockException("Out of stock");
+        }
     }
 }
