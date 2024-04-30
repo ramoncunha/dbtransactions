@@ -25,7 +25,7 @@ public class BuyProductServiceSolution3 {
                 .id(productId)
                 .build();
 
-        productStockService.validateSolution2And3(productId, quantity);
+        productStockService.validateSolution3(productId, quantity);
         productStockService.decreaseSolution3(productId, quantity);
 
         return createOrderService.create(customerMock, productMock, quantity);
