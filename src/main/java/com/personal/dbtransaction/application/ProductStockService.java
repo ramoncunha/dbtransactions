@@ -49,17 +49,6 @@ public class ProductStockService {
         stockRepository.decreaseStock(productId, quantity);
     }
 
-    public void validateSolution3(long productId, int quantity) {
-        Optional<StockEntity> stockByProductId = stockRepository.findStockByProductId(productId);
-
-        int stock = stockByProductId.orElseThrow().getStock();
-        int possibleStock = stock - quantity;
-
-        if (stock < 0 || possibleStock < 0) {
-            throw new OutOfStockException("Out of stock");
-        }
-    }
-
     public void acquireLockAndDecreaseSolution2(long productId, int quantity) {
         Query nativeQuery = entityManager.createNativeQuery("select pg_advisory_xact_lock(:lockId)");
         nativeQuery.setParameter("lockId", productId);
@@ -75,6 +64,17 @@ public class ProductStockService {
         }
 
         stockRepository.decreaseStock(productId, quantity);
+    }
+
+    public void validateSolution3(long productId, int quantity) {
+        Optional<StockEntity> stockByProductId = stockRepository.findStockByProductId(productId);
+
+        int stock = stockByProductId.orElseThrow().getStock();
+        int possibleStock = stock - quantity;
+
+        if (stock < 0 || possibleStock < 0) {
+            throw new OutOfStockException("Out of stock");
+        }
     }
 
     public void decreaseSolution3(long productId, int quantity) {
