@@ -1,10 +1,12 @@
 DBTransactions - Concurrency Handling Demo
 =====================
 
+## About
+
 This project is a demonstration of different ways to handle concurrency in a distributed system. It uses Spring Boot with Java 17 and PostgreSQL as the database.
 
 The main objective is to simulate an e-commerce scenario where multiple requests are received to update stock values. The application emulates this by receiving N requests and then
-decreasing the value from the stock.
+decreasing the value from the stock. You can use grafana k6 to send requests.
 
 ## Concurrency Handling Solutions
 
